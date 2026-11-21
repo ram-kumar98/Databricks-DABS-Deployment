@@ -1,35 +1,36 @@
 name: 'QA Deployment'
 
-# Ensure that only a single job or workflow using the same concurrency group
-# runs at a time.
-concurrency: 1
+# Ensure only one deployment runs at a time
+concurrency:
+  group: qa-deployment
+  cancel-in-progress: false
 
-# Trigger this workflow whenever a pull request is pushed to the repo's
-# main branch.
+# Trigger workflow when changes are pushed to dev_branch
 on:
- push:
- branches:
- - dev_branch
- paths:
- - 'my_first_bundle/**'
+  push:
+    branches:
+      - dev_branch
+    paths:
+      - 'my_first_bundle/**'
 
 jobs:
- deploy:
- name: 'Deploy bundle'
- runs-on: ubuntu-latest
+  deploy:
+    name: 'Deploy bundle'
+    runs-on: ubuntu-latest
 
- steps:
- # Check out this repo, so that this workflow can access it.
- - uses: actions/checkout@v3
+    steps:
+      # Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
- # Download the Databricks CLI.
- # See https://github.com/databricks/setup-cli
- - uses: databricks/setup-cli@main
+      # Install Databricks CLI
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@main
 
- # Deploy the bundle to the "prod" target as defined
- # in the bundle's settings file.
- - run: databricks bundle deploy
- working-directory: my_first_bundle
- env:
- DATABRICKS_TOKEN: ${{ secrets.QA_TOKEN}}
- DATABRICKS_BUNDLE_ENV: qa
+      # Deploy bundle to QA environment
+      - name: Deploy bundle to QA
+        run: databricks bundle deploy
+        working-directory: my_first_bundle
+        env:
+          DATABRICKS_TOKEN: ${{ secrets.QA_TOKEN }}
+          DATABRICKS_BUNDLE_ENV: qa
