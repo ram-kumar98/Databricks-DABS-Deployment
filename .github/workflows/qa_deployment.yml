@@ -1,9 +1,7 @@
 name: 'QA Deployment'
 
 # Ensure only one deployment runs at a time
-concurrency:
-  group: qa-deployment
-  cancel-in-progress: false
+concurrency: 1
 
 # Trigger workflow when changes are pushed to dev_branch
 on:
